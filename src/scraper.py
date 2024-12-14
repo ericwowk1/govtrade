@@ -1,5 +1,5 @@
 import requests
-
+import robinhood
 from bs4 import BeautifulSoup
 from datetime import datetime
 import pdfplumber
@@ -7,7 +7,7 @@ import os
 import shutil
 
 #Global variables
-start_results = [] #This stores pdf #'s for nancy trades. we check the pdf_links with this list hourly for new pdf #s
+current_holdings = [] #This stores pdf #'s for nancy trades. we check the pdf_links with this list hourly for new pdf #s
 yearnum = datetime.now().year
 year = str(yearnum)
 directory = "pdfs" #creates a directory to store the pdfs
@@ -41,7 +41,7 @@ def start_fill_list(pdf_links):
     for link in pdf_links:
         href = link.get('href')
         filename = href.split("/")[-1]
-        start_results.append(filename)
+        current_holdings.append(filename)
         
 def download_pdf(response, filename):
     """
