@@ -17,11 +17,9 @@ def robinhood_login():
             clean_line = line.strip()
             key, value = clean_line.split('=')
             creds[key] = value
-            totp = pyotp.TOTP(creds['my2factorapphere']).now()
-            robin_stocks.robinhood.authentication.login(username=creds['username'], password=creds['password'], expiresIn=86400, scope='internal', by_sms=True, store_session=True, mfa_code=totp, pickle_name='')
-      #2factor login 
-      
-        '''login = r.login(creds['username'], creds['password'], mfa_code=totp)'''
+        #2factor login 
+        totp = pyotp.TOTP(creds['my2factorapphere']).now()
+        login = r.login(creds['username'], creds['password'], mfa_code=totp)
         accountnum = creds['accountnumber']
         
 def get_current_holdings():
@@ -32,11 +30,22 @@ def get_current_holdings():
     my_stocks = r.build_holdings()
     for key,value in my_stocks.items():
         print(key,value)
+        
+def robinhood_logout():
+    r.logout()
      
         
-robinhood_login()
-buying_power = robin_stocks.robinhood.profiles.load_account_profile(account_number=accountnum, info='buying_power', dataType='indexzero')
-current_holdings=get_current_holdings()
+def get_buying_power():
+    with open('src/credentials.txt', 'r') as f:
+        for line in f:
+            clean_line = line.strip()
+            key, value = clean_line.split('=')
+            creds[key] = value
+        accountnum = creds['accountnumber']
+        buying_power = robin_stocks.robinhood.profiles.load_account_profile(account_number=accountnum, info='buying_power', dataType='indexzero')
+        return buying_power
+
+
 
 
 
