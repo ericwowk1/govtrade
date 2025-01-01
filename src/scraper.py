@@ -1,5 +1,4 @@
 import requests
-import robinhood
 from bs4 import BeautifulSoup
 from datetime import datetime
 import pdfplumber
@@ -7,6 +6,10 @@ import os
 import shutil
 import time
 import main
+from queue import Queue
+import re
+import gc
+
 
 
 
@@ -18,6 +21,7 @@ url = "https://disclosures-clerk.house.gov/FinancialDisclosure/ViewMemberSearchR
 
 
 def create_directory():
+    
     try:
         # If directory exists, try to remove it
         if os.path.exists('pdfs'):
@@ -80,11 +84,69 @@ def download_pdfs(current_holdings):
             f.write(pdf_response.content)
         
 
-def extract_pdf_data(pdf_path):
-    with pdfplumber.open(pdf_path) as pdf:
+def extract_pdf_data(single_filing):
+    transactions = {}  # Dictionary to store transactions "AAPL": "P", "GOOGL": "S"
+    filename = f"pdfs/{single_filing}.pdf"
+    
+    with pdfplumber.open(filename) as pdf:
         for page in pdf.pages:
             text = page.extract_text()
-            print(text)
+            if text:
+                # Replace null characters globally
+                text = text.replace("\x00", " ")
+
+                # Split text into individual lines
+                lines = text.split("\n")
+
+                i = 0
+                while i < len(lines):
+                    # Clean the current line
+                    line = lines[i].strip()
+
+                    # Look for a ticker enclosed in parentheses
+                    ticker_match = re.search(r"\(([A-Z]{1,5})\)", line)
+                    ticker = ticker_match.group(1) if ticker_match else None
+
+                    if ticker:
+                        # Search for " P " or " S " in the same line or the next one
+                        transaction_type = None
+
+                        # Check the current line
+                        transaction_type_match = re.search(r"\sP\s|\sS\s", line)
+                        if transaction_type_match:
+                            transaction_type = transaction_type_match.group().strip()
+
+                        # If not found, check the next line
+                        if not transaction_type and i + 1 < len(lines):
+                            next_line = lines[i + 1].strip()
+                            transaction_type_match = re.search(r"\sP\s|\sS\s", next_line)
+                            if transaction_type_match:
+                                transaction_type = transaction_type_match.group().strip()
+                                i += 1  # Skip the next line since it's already processed
+
+                        # Add the transaction to the dictionary
+                        if transaction_type == "P":
+                            transactions[ticker] = "P"  # Buy
+                        elif transaction_type == "S":
+                            transactions[ticker] = "S"  # Sell
+
+                    i += 1  # Move to the next line
+
+    return transactions if transactions else "No transactions found"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #def blacklist_truefalse():
@@ -102,7 +164,8 @@ def extract_pdf_data(pdf_path):
             print("invalid input, type y/n case sensitive")
             val = ""
             
-            
+
+    
         
         
     
