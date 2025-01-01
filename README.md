@@ -1,4 +1,4 @@
-A Python-based bot that monitors U.S. government officials' stock trade filings, 
+A Python bot that monitors U.S. government officials' stock trade filings, 
 scrapes relevant trade data and mimics those trades automatically on your Robinhood account.
 
 How to use:
