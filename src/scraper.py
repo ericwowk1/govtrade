@@ -77,6 +77,7 @@ def download_pdfs(current_holdings):
     for link in current_holdings:
         filename = link 
         final_link = f"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{year}/{filename}.pdf"  # Full PDF URL
+
         pdf_response = requests.get(final_link)
         
         file_path = os.path.join(directory, f"{filename}.pdf")

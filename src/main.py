@@ -47,11 +47,11 @@ def main():
    robinhood.robinhood_login() #logs in to robinhood account
    trader = input("Who would you like to copy trade? Enter their LAST NAME ONLY ...")
    start_up_filings = scraper.get_trader_filings(trader) #gets list of past filings in 2024. program will ignore these and monitor for new ones
+   print(f"startup filings {start_up_filings}")
    scraper.download_pdfs(start_up_filings)
    
       
    
-   hourly_check(trader, start_up_filings)
    while True:
 
       if not (robinhood.market_open()):

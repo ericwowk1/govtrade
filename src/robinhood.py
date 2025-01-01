@@ -102,6 +102,7 @@ def trade_stock(stock):
             else:
                  r.orders.order_sell_fractional_by_quantity(ticker, quantity)
             robinhood_logout()
+    return
 
          
          
