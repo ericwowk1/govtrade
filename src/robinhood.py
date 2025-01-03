@@ -13,11 +13,13 @@ def robinhood_login():
     This reads from txt file and splits into key value pairs
     '''
     global accountnum
-    with open('src/credentials.txt', 'r') as f:
+    credentials_path = os.path.join(os.path.dirname(__file__), 'credentials.txt')
+    with open(credentials_path, 'r') as f:
         for line in f:
             clean_line = line.strip()
             key, value = clean_line.split('=')
             creds[key] = value
+
         #2factor login 
         totp = pyotp.TOTP(creds['my2factorapphere']).now()
         login = r.login(creds['username'], creds['password'], mfa_code=totp)
